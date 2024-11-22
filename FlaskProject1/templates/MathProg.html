@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #genreInput {
+            padding: 8px;
+            width: 200px;
+        }
+        #searchButton {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #searchButton:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .movie {
+            background: #f9f9f9;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .movie h3 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Hello Movie Lover</h1>
+    <p>Enter your choice of Genre to get movie recommendations:</p>
+
+    <input type="text" id="genreInput" placeholder="Enter movie genre">
+    <button id="searchButton">Search</button>
+
+    <div id="result" class="result"></div>
+
+    <script>
+        document.getElementById("searchButton").onclick = function() {
+            const genre = document.getElementById("genreInput").value;
+
+            if (!genre) {
+                alert("Please enter a genre");
+                return;
+            }
+
+            // Clear previous results
+            document.getElementById("result").innerHTML = "Loading...";
+
+            fetch(`http://127.0.0.1:5000/recommend?genre=${genre}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("result").innerHTML = ""; // Clear loading message
+                    if (data.error) {
+                        document.getElementById("result").innerHTML = `<p style="color: red;">${data.error}</p>`;
+                    } else {
+                        // Display movie recommendations
+                        data.forEach(movie => {
+                            const movieElement = document.createElement("div");
+                            movieElement.classList.add("movie");
+                            movieElement.innerHTML = `<h3>${movie.title}</h3><p>Genre: ${movie.genre}</p>`;
+                            document.getElementById("result").appendChild(movieElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching recommendations:", error);
+                    document.getElementById("result").innerHTML = `<p style="color: red;">An error occurred. Please try again later.</p>`;
+                });
+        }
+    </script>
+
+</body>
+</html>
